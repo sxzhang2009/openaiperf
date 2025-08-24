@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /home/sxzhang/projects/mlperf/openaiperf_site/.venv
+set -gx VIRTUAL_ENV /home/sxzhang/projects/openaiperf/openaiperf_site/.venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

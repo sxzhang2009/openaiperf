@@ -1,0 +1,1 @@
+{"name":"llama3-13b","source":"hf://...","dtype":"fp8","quant":"awq","weights_sha256":"25Q1-003","license":"mit"}

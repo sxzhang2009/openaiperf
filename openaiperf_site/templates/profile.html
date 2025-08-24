@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile · OpenAIPerf{% endblock %}
+
+{% block content %}
+<section class="py-12 bg-slate-50/50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="md:grid md:grid-cols-3 md:gap-8">
+
+      <!-- User Profile Card -->
+      <div class="md:col-span-1 mb-8 md:mb-0">
+        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+          <h2 class="text-2xl font-bold mb-4">My Profile</h2>
+          <div class="space-y-3 text-slate-600">
+            <p><strong>Username:</strong><br>{{ user.username }}</p>
+            <p><strong>Email:</strong><br>{{ user.email }}</p>
+            <p><strong>Organization:</strong><br>{{ user.organization or 'Not provided' }}</p>
+            <p><strong>Phone:</strong><br>{{ user.phone or 'Not provided' }}</p>
+            <p><strong>Role:</strong><br><span class="capitalize px-2 py-1 text-xs font-medium rounded-full 
+              {% if user.role == 'admin' %} bg-red-100 text-red-800 
+              {% elif user.role == 'auditor' %} bg-yellow-100 text-yellow-800 
+              {% else %} bg-green-100 text-green-800 {% endif %}">
+              {{ user.role }}
+            </span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submissions List -->
+      <div class="md:col-span-2">
+        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+          <h2 class="text-2xl font-bold mb-4">My Submissions</h2>
+          {% if submissions %}
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Model Name</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Created At</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                  {% for sub in submissions %}
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                      <a href="/results/{{ sub.id }}">{{ sub.id }}</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ sub.model_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ sub.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      {% if sub.approved %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Approved
+                        </span>
+                      {% else %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                          Pending
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {% if not sub.approved %}
+                        <form action="/submission/{{ sub.id }}/delete" method="post" onsubmit="return confirm('Are you sure you want to delete this submission?');">
+                          <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-8 px-4 border-2 border-dashed border-slate-200 rounded-lg">
+                <p class="text-slate-500">You haven't submitted any results yet.</p>
+                <a href="/submit" class="mt-4 inline-block px-5 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors">
+                  Submit Now
+                </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+
+
+
+
+
+
+

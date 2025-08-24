@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{% block title %}OpenAIPerf · 构建开放、共享、透明、可复现的 AI 性能数据库{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+    .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,0.7);}  
+    /* Gradient ring card */
+    .gcard { position: relative; }
+    .gcard::before {
+      content: "";
+      position: absolute; inset: -1px; z-index: 0; border-radius: 1.25rem;
+      background: linear-gradient(135deg, rgba(99,102,241,.6), rgba(236,72,153,.6));
+      filter: blur(0.5px);
+    }
+    .gcard > .inner { position: relative; z-index: 1; border-radius: 1rem; background: white; }
+    .soft-grad { background: linear-gradient(180deg, rgba(248,250,252,1) 0%, rgba(255,255,255,1) 100%);} 
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-gradient-to-b from-white via-indigo-50/40 to-slate-50 text-slate-800">
+  <header class="sticky top-0 z-30 bg-white/70 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a class="font-semibold text-slate-900" href="/">OpenAIPerf</a>
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a class="hover:text-indigo-600" href="/#why">为什么选择</a>
+        <a class="hover:text-indigo-600" href="/results">评测结果</a>
+        <a class="hover:text-indigo-600" href="/blog">博客</a>
+        <a class="hover:text-indigo-600" href="/archive">归档</a>
+        <a class="hover:text-indigo-600" href="/submit">提交结果</a>
+        {% if current_user %}
+          {% if current_user.role in ['admin', 'auditor'] %}
+            <a class="hover:text-indigo-600" href="/admin">管理后台</a>
+          {% endif %}
+          <a class="hover:text-indigo-600" href="/profile">欢迎, {{ current_user.username }}</a>
+          <a class="hover:text-indigo-600" href="/logout">退出</a>
+        {% else %}
+          <a class="hover:text-indigo-600" href="/login">登录</a>
+          <a class="hover:text-indigo-600" href="/register">注册</a>
+        {% endif %}
+        <a class="text-indigo-600 font-medium" href="https://www.openaiperf.org" target="_blank">官网</a>
+      </nav>
+    </div>
+  </header>
+
+  {% block content %}{% endblock %}
+
+  <footer class="py-12 border-t border-slate-200 bg-white/70">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+      <p class="text-sm text-slate-500">© 2025 OpenAIPerf</p>
+      <a href="/submit" class="text-sm text-indigo-600">开始提交 →</a>
+    </div>
+  </footer>
+</body>
+</html>

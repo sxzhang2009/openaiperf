@@ -1,0 +1,1 @@
+{"task":"llm.generation","scenario":"offline","qps_target":100,"context_len":8192,"dataset":"evalhub://mixqna-v1","subset_seed":1234,"repeats":3,"perf":{"throughput":1250.2,"latency_p99_ms":45.3},"quality":{"achieved":78.9}}

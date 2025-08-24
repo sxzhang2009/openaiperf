@@ -1,28 +1,36 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>管理 · OpenAIPerf</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50">
-  <div class="max-w-5xl mx-auto p-4">
-    <h1 class="text-2xl font-semibold">管理面板</h1>
-    <div class="mt-2"><a class="text-sm text-slate-600" href="/admin/logout">退出登录</a></div>
-    <div class="mt-4 grid md:grid-cols-3 gap-4">
-      <div class="rounded-xl bg-white p-4 border">
-        <p class="text-slate-500 text-sm">总提交</p>
-        <p class="text-3xl font-semibold">{{ total }}</p>
-      </div>
-    </div>
+{% extends "base.html" %}
 
-    <h2 class="mt-8 font-semibold">待审核提交</h2>
+{% block title %}管理 · OpenAIPerf{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto p-4">
+  <h1 class="text-3xl font-bold">Admin</h1>
+  <div class="mt-8 grid md:grid-cols-3 gap-6">
+    <div class="soft-grad border rounded-2xl p-6">
+      <h2 class="text-xl font-bold">Submissions</h2>
+      <p class="mt-2 text-3xl font-semibold">{{ total }}</p>
+      <p class="text-slate-500">Total</p>
+    </div>
+    <div class="soft-grad border rounded-2xl p-6">
+      <h2 class="text-xl font-bold">Pending</h2>
+      <p class="mt-2 text-3xl font-semibold">{{ pending | length }}</p>
+      <p class="text-slate-500">For approval</p>
+    </div>
+    <div class="soft-grad border rounded-2xl p-6">
+      <h2 class="text-xl font-bold">Users</h2>
+      <p class="mt-2 text-3xl font-semibold"><a href="/admin/users" class="text-indigo-600">Manage</a></p>
+      <p class="text-slate-500">Registered</p>
+    </div>
+  </div>
+
+  <div class="mt-12">
+    <h2 class="text-2xl font-bold">Pending Approval</h2>
     <div class="mt-3 overflow-x-auto bg-white rounded-xl shadow-sm ring-1 ring-slate-200">
       <table class="min-w-full text-sm">
         <thead class="bg-slate-50">
           <tr>
             <th class="px-4 py-3 text-left">时间</th>
+            <th class="px-4 py-3 text-left">提交者</th>
             <th class="px-4 py-3 text-left">任务</th>
             <th class="px-4 py-3 text-left">模型</th>
             <th class="px-4 py-3 text-left">操作</th>
@@ -32,48 +40,73 @@
           {% for r in pending %}
           <tr class="border-t">
             <td class="px-4 py-3 text-slate-500">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td class="px-4 py-3"><a class="text-indigo-600" href="/results/{{ r.id }}">{{ r.task or '-' }}</a></td>
-            <td class="px-4 py-3">{{ r.model_name or '-' }}</td>
+            <td class="px-4 py-3 text-slate-700">
+              {% if r['user_name'] and r['user_id'] %}
+                <a href="/user/{{ r['user_id'] }}" class="text-indigo-600 hover:text-indigo-800">{{ r['user_name'] }}</a>
+              {% else %}
+                N/A
+              {% endif %}
+            </td>
+            <td class="px-4 py-3"><a class="text-indigo-600" href="/results/{{ r['id'] }}">{{ r['task'] or '-' }}</a></td>
+            <td class="px-4 py-3">{{ r['model_name'] or '-' }}</td>
             <td class="px-4 py-3">
-              <form method="post" action="/admin/approve/{{ r.id }}">
+              <form method="post" action="/admin/approve/{{ r['id'] }}">
                 <button class="px-3 py-1 bg-emerald-600 text-white rounded-lg">批准</button>
               </form>
             </td>
           </tr>
           {% else %}
-          <tr><td class="px-4 py-6 text-center text-slate-500" colspan="4">暂无</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <h2 class="mt-8 font-semibold">最近提交</h2>
-    <div class="mt-3 overflow-x-auto bg-white rounded-xl shadow-sm ring-1 ring-slate-200">
-      <table class="min-w-full text-sm">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="px-4 py-3 text-left">时间</th>
-            <th class="px-4 py-3 text-left">任务</th>
-            <th class="px-4 py-3 text-left">模型</th>
-            <th class="px-4 py-3 text-left">后端</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for r in latest %}
-          <tr class="border-t">
-            <td class="px-4 py-3 text-slate-500">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td class="px-4 py-3"><a class="text-indigo-600" href="/results/{{ r.id }}">{{ r.task or '-' }}</a></td>
-            <td class="px-4 py-3">{{ r.model_name or '-' }}</td>
-            <td class="px-4 py-3">{{ r.backend or '-' }}</td>
-          </tr>
-          {% else %}
-          <tr><td class="px-4 py-6 text-center text-slate-500" colspan="4">暂无</td></tr>
+          <tr><td class="px-4 py-6 text-center text-slate-500" colspan="5">暂无</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
-</body>
-</html>
+
+  <h2 class="mt-8 font-semibold">最近提交</h2>
+  <div class="mt-3 overflow-x-auto bg-white rounded-xl shadow-sm ring-1 ring-slate-200">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="px-4 py-3 text-left">时间</th>
+          <th class="px-4 py-3 text-left">提交者</th>
+          <th class="px-4 py-3 text-left">任务</th>
+          <th class="px-4 py-3 text-left">模型</th>
+          <th class="px-4 py-3 text-left">后端</th>
+          <th class="px-4 py-3 text-left">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in latest %}
+        <tr class="border-t">
+          <td class="px-4 py-3 text-slate-500">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td class="px-4 py-3 text-slate-700">
+            {% if r['user_name'] and r['user_id'] %}
+              <a href="/user/{{ r['user_id'] }}" class="text-indigo-600 hover:text-indigo-800">{{ r['user_name'] }}</a>
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+          <td class="px-4 py-3"><a class="text-indigo-600" href="/results/{{ r['id'] }}">{{ r['task'] or '-' }}</a></td>
+          <td class="px-4 py-3">{{ r['model_name'] or '-' }}</td>
+          <td class="px-4 py-3">{{ r['backend'] or '-' }}</td>
+          <td class="px-4 py-3">
+            {% if r['approved'] %}
+              <form method="post" action="/admin/revoke/{{ r['id'] }}" onsubmit="return confirm('Are you sure you want to revoke approval for this submission?');">
+                <button class="px-3 py-1 bg-amber-600 text-white rounded-lg">撤销审核</button>
+              </form>
+            {% else %}
+              <span class="text-slate-500">待批准</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="px-4 py-6 text-center text-slate-500" colspan="6">暂无</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
 
 

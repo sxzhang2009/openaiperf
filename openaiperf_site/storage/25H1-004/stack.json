@@ -1,0 +1,1 @@
+{"framework":"onnxruntime==1.17.0","cuda":"12.4","engine":"tensorrt==10.0","container":"sha256:25H1-004"}

@@ -1,41 +1,562 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>结果详情 · OpenAIPerf</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50">
-  <div class="max-w-5xl mx-auto p-4">
-    <a href="/results" class="text-sm text-slate-600">← 返回</a>
-    <h1 class="mt-2 text-2xl font-semibold">{{ row.model_name or '未知模型' }}</h1>
-    <p class="text-slate-600">{{ row.task }} · {{ row.scenario }} · {{ row.backend or '后端未知' }}</p>
+{% extends "base.html" %}
 
-    <div class="mt-6 grid md:grid-cols-3 gap-4">
-      <div class="rounded-xl bg-white p-4 border">
-        <p class="text-slate-500 text-sm">吞吐</p>
-        <p class="text-2xl font-semibold">{{ '%.2f' % row.throughput if row.throughput is not none else '-' }}</p>
-      </div>
-      <div class="rounded-xl bg-white p-4 border">
-        <p class="text-slate-500 text-sm">P99 延迟(ms)</p>
-        <p class="text-2xl font-semibold">{{ '%.1f' % row.latency_p99_ms if row.latency_p99_ms is not none else '-' }}</p>
-      </div>
-      <!-- 能耗指标暂不展示为主卡片，可在 cards JSON 中查看 -->
-    </div>
+{% block title %}{{ row.id }} - {{ row.model_name }} · OpenAIPerf{% endblock %}
 
-    <div class="mt-6 grid md:grid-cols-2 gap-6">
-      <div class="rounded-xl bg-white p-4 border">
-        <h2 class="font-semibold">四卡摘要</h2>
-        <pre class="mt-2 text-xs overflow-x-auto">{{ row.cards | tojson(indent=2) }}</pre>
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,0.8); }
+  .gcard { position: relative; }
+  .gcard::before {
+    content: "";
+    position: absolute; inset: -1px; z-index: 0; border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(99,102,241,.3), rgba(236,72,153,.3));
+    filter: blur(0.5px);
+  }
+  .gcard > .inner { position: relative; z-index: 1; border-radius: 0.75rem; background: white; }
+  .badge { display: inline-flex; align-items: center; gap: 1rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #f59e0b, #f97316); color: white; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-6">
+  <!-- Header -->
+  <div class="mb-6">
+    <a href="/results" class="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium">
+      ← 返回结果列表
+    </a>
+    <div class="mt-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900">{{ row.model_name or '未知模型' }}</h1>
+        <div class="mt-2 flex items-center gap-4 text-slate-600">
+          <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">{{ row.id }}</span>
+          <span>{{ row.task }}</span>
+          <span>·</span>
+          <span>{{ row.scenario }}</span>
+          <span>·</span>
+          <span>{{ row.backend or '后端未知' }}</span>
+        </div>
+        <div class="mt-3">
+          <span class="badge">
+            <span>🏆</span>
+            <span>四卡二日志完整溯源</span>
+          </span>
+        </div>
       </div>
-      <div class="rounded-xl bg-white p-4 border">
-        <h2 class="font-semibold">备注</h2>
-        <p class="mt-2 text-sm text-slate-700 whitespace-pre-wrap">{{ row.notes or '—' }}</p>
+      <div class="text-right">
+        <p class="text-sm text-slate-500">提交时间</p>
+        <p class="font-medium">{{ row.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% if user_name %}
+        <p class="text-sm text-slate-500 mt-2">提交者</p>
+        <p class="font-medium">{{ user_name }}</p>
+        {% endif %}
       </div>
     </div>
   </div>
-</body>
-</html>
+
+  <!-- Performance Metrics -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="gcard">
+      <div class="inner p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-500 text-sm">吞吐量</p>
+            <p class="text-2xl font-bold text-slate-900">{{ '%.1f' % row.throughput if row.throughput is not none else '-' }}</p>
+            <p class="text-xs text-slate-500">req/s</p>
+          </div>
+          <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+            <span class="text-white text-lg">⚡</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="gcard">
+      <div class="inner p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-500 text-sm">P99 延迟</p>
+            <p class="text-2xl font-bold text-slate-900">{{ '%.1f' % row.latency_p99_ms if row.latency_p99_ms is not none else '-' }}</p>
+            <p class="text-xs text-slate-500">ms</p>
+          </div>
+          <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+            <span class="text-white text-lg">⏱️</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="gcard">
+      <div class="inner p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-500 text-sm">质量分数</p>
+            <p class="text-2xl font-bold text-slate-900">{{ '%.1f' % row.quality if row.quality is not none else '-' }}</p>
+            <p class="text-xs text-slate-500">/100</p>
+          </div>
+          <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
+            <span class="text-white text-lg">🎯</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="gcard">
+      <div class="inner p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-500 text-sm">平均功耗</p>
+            <p class="text-2xl font-bold text-slate-900">{{ '%.0f' % row.cards.get('system_log_metrics', {}).get('avg_power_w', 0) if row.cards.get('system_log_metrics', {}).get('avg_power_w') else '-' }}</p>
+            <p class="text-xs text-slate-500">W</p>
+          </div>
+          <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center">
+            <span class="text-white text-lg">🔋</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 四卡配置 -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-6 flex items-center">
+      <span class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-3">
+        <span class="text-white text-lg">📋</span>
+      </span>
+      四卡配置信息
+    </h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- System Card -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mr-2 text-sm">🖥️</span>
+          System Card
+        </h3>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-slate-600">组织</span>
+            <span class="font-medium">{{ row.cards.get('system', {}).get('organization', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">系统名称</span>
+            <span class="font-medium">{{ row.cards.get('system', {}).get('system_name', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">CPU</span>
+            <span class="font-medium">
+              {% set cpu_info = row.cards.get('system', {}).get('hardware', {}).get('cpu', {}) %}
+              {% set cpu_model = cpu_info.get('model', row.cards.get('system', {}).get('cpu', '')) %}
+              {% set cpu_cores = cpu_info.get('cores', row.cards.get('system', {}).get('cpu_count', '')) %}
+              {% if cpu_cores %}
+                {{ cpu_cores }}x {{ cpu_model }}
+              {% else %}
+                {{ cpu_model or '-' }}
+              {% endif %}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">加速器</span>
+            <span class="font-medium">
+              {% set accelerators = row.cards.get('system', {}).get('hardware', {}).get('accelerators', row.cards.get('system', {}).get('gpu', [])) %}
+              {% if accelerators and accelerators|length > 0 %}
+                {% set acc = accelerators[0] %}
+                {% set vendor = acc.get('vendor', '') %}
+                {% set name = acc.get('name', 'Unknown') %}
+                {% set count = acc.get('count', 1) %}
+                {% set type = acc.get('type', 'gpu') %}
+                {{ count }}x {{ vendor.upper() if vendor else '' }} {{ name }} ({{ type.upper() }})
+              {% else %}
+                {{ row.cards.get('system', {}).get('accelerator', '-') }}
+              {% endif %}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">驱动版本</span>
+            <span class="font-medium">{{ row.cards.get('system', {}).get('driver', '-') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stack Card -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mr-2 text-sm">📦</span>
+          Stack Card
+        </h3>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-slate-600">框架</span>
+            <span class="font-medium">{{ row.cards.get('stack', {}).get('framework', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">推理引擎</span>
+            <span class="font-medium">{{ row.cards.get('stack', {}).get('engine', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">计算后端</span>
+            <span class="font-medium">
+              {% set compute_backend = row.cards.get('stack', {}).get('compute_backend', {}) %}
+              {% if compute_backend %}
+                {{ compute_backend.get('type', '').upper() }} {{ compute_backend.get('version', '') }}
+              {% else %}
+                {{ row.cards.get('stack', {}).get('cuda', '-') }}
+              {% endif %}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">容器镜像</span>
+            <span class="font-medium font-mono text-xs">{{ row.cards.get('stack', {}).get('container', '-') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Card -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mr-2 text-sm">🧠</span>
+          Model Card
+        </h3>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-slate-600">模型名称</span>
+            <span class="font-medium">{{ row.cards.get('model', {}).get('name', row.model_name or '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">数据类型</span>
+            <span class="font-medium">{{ row.cards.get('model', {}).get('dtype', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">量化方法</span>
+            <span class="font-medium">{{ row.cards.get('model', {}).get('quant', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">权重校验</span>
+            <span class="font-medium font-mono text-xs">{{ row.cards.get('model', {}).get('weights_sha256', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">许可证</span>
+            <span class="font-medium">{{ row.cards.get('model', {}).get('license', '-') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Run Card -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mr-2 text-sm">⚙️</span>
+          Run Card
+        </h3>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-slate-600">任务类型</span>
+            <span class="font-medium">{{ row.cards.get('run', {}).get('task', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">场景</span>
+            <span class="font-medium">{{ row.cards.get('run', {}).get('scenario', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">目标QPS</span>
+            <span class="font-medium">{{ row.cards.get('run', {}).get('qps_target', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">上下文长度</span>
+            <span class="font-medium">{{ row.cards.get('run', {}).get('context_len', '-') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">重复次数</span>
+            <span class="font-medium">{{ row.cards.get('run', {}).get('repeats', '-') }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 系统监控图表 -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-6 flex items-center">
+      <span class="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-3">
+        <span class="text-white text-lg">📊</span>
+      </span>
+      系统监控数据 (System.log)
+    </h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- CPU/NPU利用率 -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mr-2 text-sm">🔥</span>
+          CPU/NPU 利用率
+        </h3>
+        <div style="height: 250px;">
+          <canvas id="cpuChart"></canvas>
+        </div>
+      </div>
+
+      <!-- GPU/NPU利用率 -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mr-2 text-sm">⚡</span>
+          GPU/NPU 利用率
+        </h3>
+        <div style="height: 250px;">
+          <canvas id="gpuChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 内存使用 -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mr-2 text-sm">💾</span>
+          内存使用情况
+        </h3>
+        <div style="height: 250px;">
+          <canvas id="memoryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- HBM占用 -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mr-2 text-sm">🧠</span>
+          HBM 占用率
+        </h3>
+        <div style="height: 250px;">
+          <canvas id="hbmChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 功耗监控 -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-red-100 text-red-600 rounded-lg flex items-center justify-center mr-2 text-sm">🔋</span>
+          功耗监控
+        </h3>
+        <div style="height: 250px;">
+          <canvas id="powerChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 内存带宽 -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-cyan-100 text-cyan-600 rounded-lg flex items-center justify-center mr-2 text-sm">📈</span>
+          内存带宽
+        </h3>
+        <div style="height: 250px;">
+          <canvas id="bandwidthChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 二日志展示 -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-6 flex items-center">
+      <span class="w-8 h-8 bg-gradient-to-br from-slate-500 to-slate-600 rounded-xl flex items-center justify-center mr-3">
+        <span class="text-white text-lg">📝</span>
+      </span>
+      二日志详情
+    </h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- System Log -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center mr-2 text-sm">📊</span>
+          System.log
+        </h3>
+        <div class="bg-slate-900 rounded-xl p-4 font-mono text-sm">
+          <div id="systemLog" class="text-green-400 h-80 overflow-y-auto whitespace-pre-wrap">{{ system_log_content or '系统日志文件不存在或为空' }}</div>
+        </div>
+      </div>
+
+      <!-- Run Log -->
+      <div class="glass border rounded-2xl p-6">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <span class="w-6 h-6 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center mr-2 text-sm">🚀</span>
+          Run.log
+        </h3>
+        <div class="bg-slate-900 rounded-xl p-4 font-mono text-sm">
+          <div id="runLog" class="text-green-400 h-80 overflow-y-auto whitespace-pre-wrap">{{ run_log_content or '运行日志文件不存在或为空' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 配置文件原始数据 -->
+  <div class="glass border rounded-2xl p-6">
+    <h2 class="text-xl font-bold mb-4 flex items-center">
+      <span class="w-6 h-6 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center mr-2">📋</span>
+      配置文件原始数据
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-semibold mb-2 text-slate-700">System.json</h3>
+        <pre class="text-xs bg-slate-100 p-3 rounded-lg overflow-x-auto">{{ row.cards.get('system', {}) | tojson(indent=2) }}</pre>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2 text-slate-700">Stack.json</h3>
+        <pre class="text-xs bg-slate-100 p-3 rounded-lg overflow-x-auto">{{ row.cards.get('stack', {}) | tojson(indent=2) }}</pre>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2 text-slate-700">Model.json</h3>
+        <pre class="text-xs bg-slate-100 p-3 rounded-lg overflow-x-auto">{{ row.cards.get('model', {}) | tojson(indent=2) }}</pre>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2 text-slate-700">Run.json</h3>
+        <pre class="text-xs bg-slate-100 p-3 rounded-lg overflow-x-auto">{{ row.cards.get('run', {}) | tojson(indent=2) }}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 备注信息 -->
+  {% if row.notes %}
+  <div class="glass border border-amber-200 rounded-2xl p-6 mt-6 bg-gradient-to-br from-amber-50 to-orange-50">
+    <h2 class="text-xl font-bold mb-4 flex items-center text-amber-900">
+      <span class="w-6 h-6 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center mr-2">💬</span>
+      备注说明
+    </h2>
+    <p class="text-amber-800 whitespace-pre-wrap leading-relaxed">{{ row.notes }}</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// 模拟系统监控数据解析（实际应用中应该从后端获取）
+// 这里使用示例数据来演示图表效果
+const systemLogData = {
+  timestamps: ['10:29:45', '10:29:46', '10:29:47', '10:29:48', '10:29:49', '10:29:50', '10:29:51', '10:29:52'],
+  cpu_usage: [82.1, 82.6, 83.1, 83.6, 84.1, 84.6, 85.1, 85.6],
+  gpu_utilization: [89.2, 89.5, 89.8, 90.1, 90.4, 90.7, 91.0, 91.3],
+  memory_used_gb: [42.3, 42.5, 42.7, 42.9, 43.1, 43.3, 43.5, 43.7],
+  gpu_memory_used_gb: [76.2, 76.3, 76.4, 76.5, 76.6, 76.7, 76.8, 76.9],
+  memory_bandwidth_gbps: [1024.5, 1026.6, 1028.7, 1030.8, 1032.9, 1035.0, 1037.1, 1039.2],
+  power_watts: [2840, 2845, 2850, 2855, 2860, 2865, 2870, 2875]
+};
+
+// 通用图表配置函数
+const getChartConfig = (label, color, data, yAxisConfig = {}) => ({
+  type: 'line',
+  data: {
+    labels: systemLogData.timestamps,
+    datasets: [{
+      label: label,
+      data: data,
+      borderColor: color,
+      backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+      fill: true,
+      tension: 0.4,
+      borderWidth: 2,
+      pointRadius: 3,
+      pointHoverRadius: 5
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: color,
+        borderWidth: 1
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(148, 163, 184, 0.1)',
+          borderColor: 'rgba(148, 163, 184, 0.3)'
+        },
+        ticks: {
+          color: 'rgba(100, 116, 139, 0.8)'
+        },
+        ...yAxisConfig
+      },
+      x: {
+        grid: {
+          color: 'rgba(148, 163, 184, 0.1)',
+          borderColor: 'rgba(148, 163, 184, 0.3)'
+        },
+        ticks: {
+          color: 'rgba(100, 116, 139, 0.8)',
+          maxTicksLimit: 8
+        }
+      }
+    },
+    interaction: {
+      mode: 'nearest',
+      axis: 'x',
+      intersect: false
+    }
+  }
+});
+
+// CPU利用率图表
+new Chart(document.getElementById('cpuChart'), 
+  getChartConfig(
+    'CPU 利用率 (%)', 
+    'rgb(59, 130, 246)', 
+    systemLogData.cpu_usage,
+    { max: 100 }
+  )
+);
+
+// GPU利用率图表
+new Chart(document.getElementById('gpuChart'), 
+  getChartConfig(
+    'GPU 利用率 (%)', 
+    'rgb(34, 197, 94)', 
+    systemLogData.gpu_utilization,
+    { max: 100 }
+  )
+);
+
+// 内存使用图表
+new Chart(document.getElementById('memoryChart'), 
+  getChartConfig(
+    '内存使用 (GB)', 
+    'rgb(168, 85, 247)', 
+    systemLogData.memory_used_gb
+  )
+);
+
+// HBM占用图表
+new Chart(document.getElementById('hbmChart'), 
+  getChartConfig(
+    'HBM 占用 (GB)', 
+    'rgb(251, 146, 60)', 
+    systemLogData.gpu_memory_used_gb
+  )
+);
+
+// 功耗监控图表
+new Chart(document.getElementById('powerChart'), 
+  getChartConfig(
+    '功耗 (W)', 
+    'rgb(239, 68, 68)', 
+    systemLogData.power_watts
+  )
+);
+
+// 内存带宽图表
+new Chart(document.getElementById('bandwidthChart'), 
+  getChartConfig(
+    '内存带宽 (GB/s)', 
+    'rgb(6, 182, 212)', 
+    systemLogData.memory_bandwidth_gbps
+  )
+);
+</script>
+{% endblock %}
 
 

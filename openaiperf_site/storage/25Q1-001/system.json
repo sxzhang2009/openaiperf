@@ -1,0 +1,1 @@
+{"organization":"OpenAI Research","system_name":"DGX-H100-8x","hardware":{"cpu":{"model":"Intel Xeon 8480+","cores":56},"accelerators":[{"type":"gpu","vendor":"nvidia","name":"H100","count":8,"memory_gb":80,"interconnect":"nvlink"}]},"software":{"driver":"550.54"}}

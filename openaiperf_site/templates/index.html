@@ -1,155 +1,114 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>OpenAIPerf · 构建开放、共享、透明、可复现的 AI 性能数据库</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
-    .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,0.7);}  
-    /* Gradient ring card */
-    .gcard { position: relative; }
-    .gcard::before {
-      content: "";
-      position: absolute; inset: -1px; z-index: 0; border-radius: 1.25rem;
-      background: linear-gradient(135deg, rgba(99,102,241,.6), rgba(236,72,153,.6));
-      filter: blur(0.5px);
-    }
-    .gcard > .inner { position: relative; z-index: 1; border-radius: 1rem; background: white; }
-    .soft-grad { background: linear-gradient(180deg, rgba(248,250,252,1) 0%, rgba(255,255,255,1) 100%);} 
-  </style>
-</head>
-<body class="bg-gradient-to-b from-white via-indigo-50/40 to-slate-50 text-slate-800">
-  <header class="sticky top-0 z-30 bg-white/70 backdrop-blur border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a class="font-semibold text-slate-900" href="/">OpenAIPerf</a>
-      <nav class="hidden md:flex items-center gap-6 text-sm">
-        <a class="hover:text-indigo-600" href="#why">为什么选择</a>
-        <a class="hover:text-indigo-600" href="/results">评测结果</a>
-        <a class="hover:text-indigo-600" href="/submit">提交结果</a>
-        <a class="hover:text-indigo-600" href="/admin">管理</a>
-        <a class="text-indigo-600 font-medium" href="https://www.openaiperf.org" target="_blank">官网</a>
-      </nav>
-    </div>
-  </header>
+{% extends "base.html" %}
 
-  <section class="relative">
-    <div class="absolute inset-0 -z-10 overflow-hidden">
-      <div class="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-gradient-to-tr from-indigo-300/50 to-cyan-200/50 blur-3xl"></div>
-      <div class="absolute top-24 right-16 w-72 h-72 rounded-full bg-gradient-to-tr from-fuchsia-300/50 to-pink-200/50 blur-3xl"></div>
-    </div>
-    <div class="max-w-4xl mx-auto px-4 pt-16 pb-24 text-center">
-      <p class="text-sm text-indigo-600 font-medium">开放 · 共享 · 透明 · 可复现</p>
-      <h1 class="mt-3 text-3xl md:text-5xl font-bold leading-tight">构建开放共享的AI性能数据库</h1>
-      <p class="mt-4 text-slate-600 max-w-2xl mx-auto">面向模型/系统/软件栈/工况，以“证据而非排行榜”为原则，提供可审计、可复现、可比的多维结果。</p>
-      <div class="mt-6 flex gap-3 justify-center">
-        <a href="/results" class="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md hover:shadow-lg hover:brightness-110 transition">浏览数据</a>
-        <a href="/submit" class="px-5 py-3 rounded-xl border border-slate-200 bg-white/80 hover:bg-white shadow-sm">贡献数据</a>
-      </div>
-      <div class="mt-8 grid grid-cols-3 gap-6 text-center max-w-lg mx-auto">
-        <div>
-          <p class="text-2xl font-semibold">1000+</p>
-          <p class="text-slate-500 text-sm">评测样本</p>
-        </div>
-        <div>
-          <p class="text-2xl font-semibold">5000+</p>
-          <p class="text-slate-500 text-sm">数据点</p>
-        </div>
-        <div>
-          <p class="text-2xl font-semibold">98%</p>
-          <p class="text-slate-500 text-sm">可复现率</p>
-        </div>
-      </div>
-    </div>
-  </section>
+{% block title %}OpenAIPerf · 构建开放、共享、透明、可复现的 AI 性能数据库{% endblock %}
 
-  <section id="why" class="py-20 relative">
-    <div class="absolute inset-0 -z-10 overflow-hidden">
-      <div class="absolute -bottom-24 left-16 w-72 h-72 rounded-full bg-gradient-to-tr from-emerald-200/50 to-teal-200/40 blur-3xl"></div>
+{% block content %}
+<section class="relative">
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-gradient-to-tr from-indigo-300/50 to-cyan-200/50 blur-3xl"></div>
+    <div class="absolute top-24 right-16 w-72 h-72 rounded-full bg-gradient-to-tr from-fuchsia-300/50 to-pink-200/50 blur-3xl"></div>
+  </div>
+  <div class="max-w-4xl mx-auto px-4 pt-16 pb-24 text-center">
+    <p class="text-sm text-indigo-600 font-medium">开放 · 共享 · 透明 · 可复现</p>
+    <h1 class="mt-3 text-3xl md:text-5xl font-bold leading-tight">构建开放共享的AI性能数据库</h1>
+    <p class="mt-4 text-slate-600 max-w-3xl mx-auto">面向模型/系统/软件栈/工况，以"证据而非排行榜"为原则，提供可审计、可复现、可对比的多维结果。</p>
+    <div class="mt-6 flex gap-3 justify-center">
+      <a href="/results" class="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md hover:shadow-lg hover:brightness-110 transition">浏览数据</a>
+      <a href="/submit" class="px-5 py-3 rounded-xl border border-slate-200 bg-white/80 hover:bg-white shadow-sm">贡献数据</a>
     </div>
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="text-center">
-        <h2 class="text-3xl font-bold">为什么选择 OpenAIPerf</h2>
-        <p class="mt-3 text-slate-600">我们把“评测”升级为“决策”，帮助你在真实世界里做正确的模型/系统/栈选择。</p>
+    <div class="mt-8 grid grid-cols-3 gap-6 text-center max-w-lg mx-auto">
+      <div>
+        <p class="text-2xl font-semibold">1000+</p>
+        <p class="text-slate-500 text-sm">评测样本</p>
       </div>
-      <div class="mt-10 grid md:grid-cols-3 gap-6">
-        <div class="rounded-2xl soft-grad border p-6 shadow-sm">
-          <h4 class="font-semibold">我们的定位</h4>
-          <ul class="mt-3 space-y-2 text-sm text-slate-700 list-disc list-inside">
-            <li>决策引擎，而非排行榜</li>
-            <li>开放、透明、可复现、充分披露</li>
-            <li>能耗与成本是一等公民（独立展示）</li>
-          </ul>
-        </div>
-        <div class="rounded-2xl soft-grad border p-6 shadow-sm">
-          <h4 class="font-semibold">核心价值</h4>
-          <ul class="mt-3 space-y-2 text-sm text-slate-700 list-disc list-inside">
-            <li>减少选型与容量规划的不确定性与沟通成本</li>
-            <li>用置信区间和分布刻画稳定性与真实表现</li>
-            <li>一键复现，结果可审计、可迁移</li>
-          </ul>
-        </div>
-        <div class="rounded-2xl soft-grad border p-6 shadow-sm">
-          <h4 class="font-semibold">实施原则</h4>
-          <ul class="mt-3 space-y-2 text-sm text-slate-700 list-disc list-inside">
-            <li>插件化定义任务/度量/场景/后端</li>
-            <li>滚动子集与强披露，抑制“基准游戏化”</li>
-            <li>徽章分级（L0–L3）明确信任边界</li>
-          </ul>
-        </div>
+      <div>
+        <p class="text-2xl font-semibold">5000+</p>
+        <p class="text-slate-500 text-sm">数据点</p>
       </div>
+      <div>
+        <p class="text-2xl font-semibold">98%</p>
+        <p class="text-slate-500 text-sm">可复现率</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-      <div class="mt-12 grid md:grid-cols-4 gap-5">
-        <div class="gcard rounded-2xl p-[1px] shadow-md hover:-translate-y-0.5 transition">
-          <div class="inner p-6">
-          <div class="w-10 h-10 grid place-items-center rounded-xl bg-indigo-100 text-indigo-700">
-            <span>⚙️</span>
-          </div>
-          <h3 class="mt-4 font-semibold">AI 智能分析</h3>
-          <p class="mt-2 text-sm text-slate-600">内置 Lenses 与 Analyzer，将多维数据自动转化为可执行洞察与结论。</p>
-          </div>
+<section id="why" class="py-20 relative">
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <div class="absolute -bottom-24 left-16 w-72 h-72 rounded-full bg-gradient-to-tr from-emerald-200/50 to-teal-200/40 blur-3xl"></div>
+  </div>
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="text-center">
+      <h2 class="text-3xl font-bold">为什么选择 OpenAIPerf</h2>
+      <p class="mt-3 text-slate-600">我们把"评测榜单"升级为"决策引擎"，帮助你在快速演进的AI基础设施领域做正确的模型和系统选择。</p>
+    </div>
+    <div class="mt-10 grid md:grid-cols-3 gap-6">
+      <div class="rounded-2xl soft-grad border p-6 shadow-sm">
+        <h4 class="font-semibold">我们的定位</h4>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700 list-disc list-inside">
+          <li>AI系统性能评测的决策引擎，而非简单排行榜</li>
+          <li>连接用户选型需求与厂商优化方向的桥梁</li>
+          <li>基于充分披露、可复现数据的可信评测平台</li>
+        </ul>
+      </div>
+      <div class="rounded-2xl soft-grad border p-6 shadow-sm">
+        <h4 class="font-semibold">核心价值</h4>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700 list-disc list-inside">
+          <li><strong>对用户：</strong>降低选型不确定性，提供多维真实可比数据</li>
+          <li><strong>对厂商：</strong>通过可审计数据牵引系统优化，提升竞争力</li>
+          <li><strong>对生态：</strong>建立透明、可复现的AI性能评测标准</li>
+        </ul>
+      </div>
+      <div class="rounded-2xl soft-grad border p-6 shadow-sm">
+        <h4 class="font-semibold">实施原则</h4>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700 list-disc list-inside">
+          <li>插件化定义任务/度量/场景/后端</li>
+          <li>滚动子集与强披露，抑制"基准游戏化"</li>
+          <li>徽章分级（L0–L2）明确信任边界：L0基础记录，L1官方复现，L2厂商认证</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-4 gap-5">
+      <div class="gcard rounded-2xl p-[1px] shadow-md hover:-translate-y-0.5 transition">
+        <div class="inner p-6">
+        <div class="w-10 h-10 grid place-items-center rounded-xl bg-pink-100 text-pink-700">
+          <span>🔍</span>
         </div>
-        <div class="gcard rounded-2xl p-[1px] shadow-md hover:-translate-y-0.5 transition">
-          <div class="inner p-6">
-          <div class="w-10 h-10 grid place-items-center rounded-xl bg-pink-100 text-pink-700">
-            <span>🔍</span>
-          </div>
-          <h3 class="mt-4 font-semibold">强披露 & 可复现</h3>
-          <p class="mt-2 text-sm text-slate-600">“四卡一日志”完整溯源；L0-L3 徽章标注信任等级，可一键复现实验。</p>
-          </div>
+        <h3 class="mt-4 font-semibold">强披露 & 可复现</h3>
+        <p class="mt-2 text-sm text-slate-600">"四卡二日志"完整溯源；L0-L2 徽章标注信任等级，可一键复现实验。</p>
         </div>
-        <div class="gcard rounded-2xl p-[1px] shadow-md hover:-translate-y-0.5 transition">
-          <div class="inner p-6">
-          <div class="w-10 h-10 grid place-items-center rounded-xl bg-orange-100 text-orange-700">
-            <span>📊</span>
-          </div>
-          <h3 class="mt-4 font-semibold">多维真实可比</h3>
-          <p class="mt-2 text-sm text-slate-600">不做单一排名；提供延迟、吞吐、质量、稳定性、成本等多维分布与置信。</p>
-          </div>
+      </div>
+      <div class="gcard rounded-2xl p-[1px] shadow-md hover:-translate-y-0.5 transition">
+        <div class="inner p-6">
+        <div class="w-10 h-10 grid place-items-center rounded-xl bg-orange-100 text-orange-700">
+          <span>📊</span>
         </div>
-        <div class="gcard rounded-2xl p-[1px] shadow-md hover:-translate-y-0.5 transition">
-          <div class="inner p-6">
-          <div class="w-10 h-10 grid place-items-center rounded-xl bg-emerald-100 text-emerald-700">
-            <span>♻️</span>
-          </div>
-          <h3 class="mt-4 font-semibold">工程友好与开放</h3>
-          <p class="mt-2 text-sm text-slate-600">插件化任务/后端/场景；容器优先与环境锁定；开源协议与公开 Registry。</p>
-          </div>
+        <h3 class="mt-4 font-semibold">多维真实可比</h3>
+        <p class="mt-2 text-sm text-slate-600">不做单一排名；提供延迟、吞吐、质量、稳定性、成本等多维分布与置信。</p>
+        </div>
+      </div>
+      <div class="gcard rounded-2xl p-[1px] shadow-md hover:-translate-y-0.5 transition">
+        <div class="inner p-6">
+        <div class="w-10 h-10 grid place-items-center rounded-xl bg-emerald-100 text-emerald-700">
+          <span>♻️</span>
+        </div>
+        <h3 class="mt-4 font-semibold">工程友好与开放</h3>
+        <p class="mt-2 text-sm text-slate-600">插件化任务/后端/场景；容器优先与环境锁定；开源协议与公开 Registry。</p>
+        </div>
+      </div>
+      <div class="gcard rounded-2xl p-[1px] shadow-md hover:-translate-y-0.5 transition">
+        <div class="inner p-6">
+        <div class="w-10 h-10 grid place-items-center rounded-xl bg-indigo-100 text-indigo-700">
+          <span>🧠</span>
+        </div>
+        <h3 class="mt-4 font-semibold">AI 智能分析</h3>
+        <p class="mt-2 text-sm text-slate-600">内置 Lenses 与 Analyzer，将多维数据自动转化为可执行洞察与决策建议。</p>
         </div>
       </div>
     </div>
-  </section>
-
-  <footer class="py-12 border-t border-slate-200 bg-white/70">
-    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
-      <p class="text-sm text-slate-500">© 2025 OpenAIPerf</p>
-      <a href="/submit" class="text-sm text-indigo-600">开始提交 →</a>
-    </div>
-  </footer>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}
 
 

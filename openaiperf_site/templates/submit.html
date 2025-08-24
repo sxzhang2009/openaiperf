@@ -1,51 +1,65 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>提交评测 · OpenAIPerf</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50">
-  <div class="max-w-3xl mx-auto p-4">
-    <h1 class="text-2xl font-semibold">提交“四卡一日志”</h1>
-    <p class="mt-2 text-slate-600">至少上传 `system.json`、`stack.json`、`model.json`、`run.json`，可选 `energy_summary.json` 与 `events.jsonl`。</p>
+{% extends "base.html" %}
 
-    <form class="mt-6 space-y-4 bg-white p-6 rounded-xl border" action="/submit" method="post" enctype="multipart/form-data">
-      <div>
-        <label class="block text-sm font-medium">system.json</label>
-        <input type="file" name="system" accept="application/json" class="mt-1 block w-full"/>
+{% block title %}提交评测 · OpenAIPerf{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto p-4">
+  <h1 class="text-2xl font-semibold">提交"四卡二日志"</h1>
+  <p class="mt-2 text-slate-600">上传 4 个配置文件：`system.json`、`stack.json`、`model.json`、`run.json`，以及 2 个日志文件：`system.log`、`run.log`。</p>
+
+  <form class="mt-6 space-y-6 bg-white p-6 rounded-xl border" action="/submit" method="post" enctype="multipart/form-data">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium text-slate-900">配置文件 (必需)</h3>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">system.json</label>
+          <input type="file" name="system" accept="application/json" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"/>
+          <p class="mt-1 text-xs text-slate-500">系统硬件配置信息</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">stack.json</label>
+          <input type="file" name="stack" accept="application/json" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"/>
+          <p class="mt-1 text-xs text-slate-500">软件栈配置信息</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">model.json</label>
+          <input type="file" name="model" accept="application/json" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"/>
+          <p class="mt-1 text-xs text-slate-500">模型配置信息</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">run.json</label>
+          <input type="file" name="run" accept="application/json" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"/>
+          <p class="mt-1 text-xs text-slate-500">运行配置和性能结果</p>
+        </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium">stack.json</label>
-        <input type="file" name="stack" accept="application/json" class="mt-1 block w-full"/>
+      
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium text-slate-900">日志文件 (推荐)</h3>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">system.log</label>
+          <input type="file" name="system_log" accept="text/plain,.log" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"/>
+          <p class="mt-1 text-xs text-slate-500">系统监控日志 (CPU、GPU、内存、功耗等)</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">run.log</label>
+          <input type="file" name="run_log" accept="text/plain,.log" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"/>
+          <p class="mt-1 text-xs text-slate-500">运行日志 (初始化、加载状态、中间结果等)</p>
+        </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium">model.json</label>
-        <input type="file" name="model" accept="application/json" class="mt-1 block w-full"/>
-      </div>
-      <div>
-        <label class="block text-sm font-medium">run.json</label>
-        <input type="file" name="run" accept="application/json" class="mt-1 block w-full"/>
-      </div>
-      <div>
-        <label class="block text-sm font-medium">energy_summary.json (可选)</label>
-        <input type="file" name="energy" accept="application/json" class="mt-1 block w-full"/>
-      </div>
-      <div>
-        <label class="block text-sm font-medium">events.jsonl (可选)</label>
-        <input type="file" name="events" accept="text/plain,.jsonl" class="mt-1 block w-full"/>
-      </div>
-      <div>
-        <label class="block text-sm font-medium">备注 (可选)</label>
-        <textarea name="notes" rows="3" class="mt-1 w-full rounded-lg border p-2" placeholder="例如：冷/热启动、功率上限、动态批窗口等"></textarea>
-      </div>
-      <div class="pt-2">
-        <button class="px-5 py-2 rounded-xl bg-indigo-600 text-white">提交</button>
-      </div>
-    </form>
-  </div>
-</body>
-</html>
+    </div>
+    
+    <div>
+      <label class="block text-sm font-medium text-slate-700">备注 (可选)</label>
+      <textarea name="notes" rows="3" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500" placeholder="例如：冷/热启动、功率上限、动态批窗口等特殊配置说明"></textarea>
+    </div>
+    
+    <div class="pt-4 border-t border-slate-200">
+      <button type="submit" class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white font-medium shadow-md hover:shadow-lg hover:brightness-110 transition-all">
+        提交评测结果
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
 
 

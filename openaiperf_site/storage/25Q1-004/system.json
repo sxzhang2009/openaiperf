@@ -1,0 +1,1 @@
+{"organization":"Microsoft Azure","system_name":"ND96amsr_A100_v4","hardware":{"cpu":{"model":"AMD EPYC 7V12","cores":96},"accelerators":[{"type":"gpu","vendor":"nvidia","name":"A100","count":8,"memory_gb":80,"interconnect":"nvlink"}]},"software":{"driver":"550.54"}}

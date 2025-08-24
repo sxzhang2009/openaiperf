@@ -8,8 +8,8 @@ Stack
 Features
 - Landing page aligned with the OpenAIPerf vision
 - Results matrix list with simple filters (task, scenario, model, backend)
-- Result detail page showing the “四卡一日志”摘要与关键指标
-- Upload form to submit `system.json`, `stack.json`, `model.json`, `run.json`, `energy_summary.json` (optional `events.jsonl`) and store them
+- Result detail page showing the "四卡二日志"摘要与关键指标（system.json、stack.json、model.json、run.json、system.log、run.log）
+- Upload form to submit `system.json`, `stack.json`, `model.json`, `run.json`, `system.log`, `run.log`, `energy_summary.json` and store them
 - Admin summary page
 - Auto-seed demo data on first run
 

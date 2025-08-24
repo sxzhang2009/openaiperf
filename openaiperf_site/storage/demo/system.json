@@ -1,1 +1,1 @@
-{"cpu":"Xeon 8480+","gpu":[{"name":"H100","count":8}],"driver":"550.54"}
+{"hardware":{"cpu":{"model":"Intel Xeon 8480+","cores":56,"frequency":"3.8GHz"},"accelerators":[{"type":"gpu","vendor":"nvidia","name":"H100","count":8,"memory_gb":80,"interconnect":"nvlink"}],"memory":{"total_gb":1024,"type":"DDR5"},"storage":{"type":"NVMe SSD","capacity_gb":2000},"network":{"type":"100GbE","interfaces":2}},"software":{"driver":"550.54","kernel":"5.15.0","power_sensors":{"source":"nvml","frequency_hz":5,"accuracy":"±2%"}}}

@@ -20,8 +20,8 @@ class Storage:
         stack: Optional[UploadFile],
         model: Optional[UploadFile],
         run: Optional[UploadFile],
-        energy: Optional[UploadFile] = None,
-        events: Optional[UploadFile] = None,
+        system_log: Optional[UploadFile] = None,
+        run_log: Optional[UploadFile] = None,
     ) -> Dict[str, str]:
         uid = uuid.uuid4().hex[:12]
         dir_path = self.base_dir / uid
@@ -33,8 +33,8 @@ class Storage:
             "stack.json": stack,
             "model.json": model,
             "run.json": run,
-            "energy_summary.json": energy,
-            "events.jsonl": events,
+            "system.log": system_log,
+            "run.log": run_log,
         }.items():
             if obj is None:
                 continue
@@ -51,24 +51,59 @@ class Storage:
         except Exception:
             return None
 
+    def _parse_system_log(self, path: Path) -> dict:
+        """Parse system.log to extract power and performance metrics"""
+        if not path.exists():
+            return {}
+        
+        try:
+            lines = path.read_text().strip().split('\n')
+            total_power = 0
+            count = 0
+            max_gpu_util = 0
+            max_memory_bw = 0
+            
+            for line in lines:
+                if not line.strip():
+                    continue
+                try:
+                    data = orjson.loads(line)
+                    if 'power_watts' in data:
+                        total_power += data['power_watts']
+                        count += 1
+                    if 'gpu_utilization' in data:
+                        max_gpu_util = max(max_gpu_util, max(data['gpu_utilization']))
+                    if 'memory_bandwidth_gbps' in data:
+                        max_memory_bw = max(max_memory_bw, data['memory_bandwidth_gbps'])
+                except:
+                    continue
+            
+            metrics = {}
+            if count > 0:
+                metrics['avg_power_w'] = total_power / count
+            if max_gpu_util > 0:
+                metrics['max_gpu_utilization'] = max_gpu_util
+            if max_memory_bw > 0:
+                metrics['max_memory_bandwidth_gbps'] = max_memory_bw
+                
+            return metrics
+        except:
+            return {}
+
     def build_summary(self, saved: Dict[str, str]) -> dict:
         dir_path = Path(saved["dir"])  # type: ignore
         system = self._load_json(dir_path / "system.json") or {}
         stack = self._load_json(dir_path / "stack.json") or {}
         model = self._load_json(dir_path / "model.json") or {}
         run = self._load_json(dir_path / "run.json") or {}
-        energy = self._load_json(dir_path / "energy_summary.json") or {}
+        
+        # Parse system.log for power and performance metrics
+        system_log_metrics = self._parse_system_log(dir_path / "system.log")
 
         metrics: Dict[str, float] = {}
-        # Heuristic extraction for MVP; can be replaced with schema-aware parsing later
-        if energy:
-            for key in ("energy_per_request_j", "energy_per_sample_j", "energy_per_token_j"):
-                val = energy.get(key)
-                if isinstance(val, (int, float)):
-                    metrics["energy_j_per_request"] = float(val)
-                    break
-            if isinstance(energy.get("avg_power_w"), (int, float)):
-                metrics["avg_power_w"] = float(energy["avg_power_w"])  # noqa: F841 (may be unused)
+        
+        # Extract metrics from system.log
+        metrics.update(system_log_metrics)
 
         perf = run.get("perf", {}) if isinstance(run.get("perf"), dict) else {}
         if isinstance(perf.get("throughput"), (int, float)):
@@ -87,7 +122,7 @@ class Storage:
             "stack": stack,
             "model": model,
             "run": run,
-            "energy": energy,
+            "system_log_metrics": system_log_metrics,
             "metrics": metrics,
         }
         (dir_path / "summary.json").write_bytes(orjson.dumps(summary))

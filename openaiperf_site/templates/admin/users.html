@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}User Management · OpenAIPerf Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">User Management</h1>
+    <a href="/admin" class="text-indigo-600 hover:text-indigo-800">&larr; Back to Admin Dashboard</a>
+  </div>
+
+  <div class="mt-4 overflow-x-auto bg-white rounded-xl shadow-sm ring-1 ring-slate-200">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="px-4 py-3 text-left">ID</th>
+          <th class="px-4 py-3 text-left">Username</th>
+          <th class="px-4 py-3 text-left">Email</th>
+          <th class="px-4 py-3 text-left">Organization</th>
+          <th class="px-4 py-3 text-left">Role</th>
+          <th class="px-4 py-3 text-left">Status</th>
+          <th class="px-4 py-3 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200">
+        {% for u in users %}
+        <tr class="border-t">
+          <td class="px-4 py-3 text-slate-500">{{ u.id }}</td>
+          <td class="px-4 py-3 font-medium">
+            <a href="/user/{{ u.id }}" class="text-indigo-600 hover:text-indigo-800 hover:underline">{{ u.username }}</a>
+          </td>
+          <td class="px-4 py-3 text-slate-600">{{ u.email }}</td>
+          <td class="px-4 py-3 text-slate-600">{{ u.organization or '-' }}</td>
+          <td class="px-4 py-3">
+            <span class="capitalize px-2 py-1 text-xs font-medium rounded-full 
+              {% if u.role == 'admin' %} bg-red-100 text-red-800 
+              {% elif u.role == 'auditor' %} bg-yellow-100 text-yellow-800 
+              {% else %} bg-green-100 text-green-800 {% endif %}">
+              {{ u.role }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            {% if u.approved %}
+              <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                Approved
+              </span>
+            {% else %}
+              <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                Pending
+              </span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex gap-2">
+              {% if not u.approved %}
+                <form action="/admin/user/{{ u.id }}/approve" method="post" class="inline">
+                  <button type="submit" class="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700">Approve</button>
+                </form>
+              {% endif %}
+              
+              {% if current_user.id != u.id and u.role != 'admin' %}
+                <form action="/admin/user/{{ u.id }}/delete" method="post" onsubmit="return confirm('Are you sure you want to delete user {{ u.username }}? This action cannot be undone.');" class="inline">
+                  <button type="submit" class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">Delete</button>
+                </form>
+              {% elif current_user.id == u.id %}
+                <span class="text-slate-400 text-xs">(Yourself)</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td class="px-4 py-6 text-center text-slate-500" colspan="7">No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

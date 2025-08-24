@@ -1,58 +1,82 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>评测结果 · OpenAIPerf</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50">
-  <div class="max-w-7xl mx-auto p-4">
-    <div class="flex items-end justify-between">
-      <h1 class="text-2xl font-bold">评测结果</h1>
-      <a href="/submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white">提交结果</a>
-    </div>
-    <form method="get" class="mt-4 grid md:grid-cols-4 gap-3">
-      <input class="px-3 py-2 rounded-lg border" type="text" name="q" value="{{ q or '' }}" placeholder="搜索模型名称"/>
-      <input class="px-3 py-2 rounded-lg border" type="text" name="task" value="{{ task or '' }}" placeholder="任务如 llm.generation"/>
-      <input class="px-3 py-2 rounded-lg border" type="text" name="scenario" value="{{ scenario or '' }}" placeholder="场景如 server/offline"/>
-      <button class="px-4 py-2 rounded-lg bg-white border">筛选</button>
-    </form>
+{% extends "base.html" %}
 
-    <div class="mt-6 overflow-x-auto bg-white rounded-xl shadow-sm ring-1 ring-slate-200">
-      <table class="min-w-full text-sm">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="px-4 py-3 text-left">时间</th>
-            <th class="px-4 py-3 text-left">任务</th>
-            <th class="px-4 py-3 text-left">场景</th>
-            <th class="px-4 py-3 text-left">模型</th>
-            <th class="px-4 py-3 text-left">后端</th>
-            <th class="px-4 py-3 text-right">吞吐</th>
-            <th class="px-4 py-3 text-right">P99(ms)</th>
-            <!-- 能耗暂不作为主指标 -->
-          </tr>
-        </thead>
-        <tbody>
-          {% for r in rows %}
-          <tr class="border-t hover:bg-slate-50">
-            <td class="px-4 py-3 text-slate-500">{{ r.created_at.strftime('%Y-%m-%d') }}</td>
-            <td class="px-4 py-3"><a class="text-indigo-600" href="/results/{{ r.id }}">{{ r.task or '-' }}</a></td>
-            <td class="px-4 py-3">{{ r.scenario or '-' }}</td>
-            <td class="px-4 py-3">{{ r.model_name or '-' }}</td>
-            <td class="px-4 py-3">{{ r.backend or '-' }}</td>
-            <td class="px-4 py-3 text-right">{{ '%.2f' % r.throughput if r.throughput is not none else '-' }}</td>
-            <td class="px-4 py-3 text-right">{{ '%.1f' % r.latency_p99_ms if r.latency_p99_ms is not none else '-' }}</td>
-            
-          </tr>
-          {% else %}
-          <tr><td class="px-4 py-6 text-center text-slate-500" colspan="8">暂无数据</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+{% block title %}评测结果 · OpenAIPerf{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-4">
+  <div class="flex items-end justify-between">
+    <h1 class="text-2xl font-bold">评测结果</h1>
+    <a href="/submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white">提交结果</a>
   </div>
-</body>
-</html>
+  <form method="get" class="mt-4 grid md:grid-cols-4 gap-3">
+    <input class="px-3 py-2 rounded-lg border" type="text" name="q" value="{{ q or '' }}" placeholder="搜索模型名称"/>
+    <input class="px-3 py-2 rounded-lg border" type="text" name="task" value="{{ task or '' }}" placeholder="任务如 llm.generation"/>
+    <input class="px-3 py-2 rounded-lg border" type="text" name="scenario" value="{{ scenario or '' }}" placeholder="场景如 server/offline"/>
+    <button class="px-4 py-2 rounded-lg bg-white border">筛选</button>
+  </form>
+
+  <div class="mt-6 overflow-x-auto bg-white rounded-xl shadow-sm ring-1 ring-slate-200">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="px-3 py-3 text-left">Submit ID</th>
+          <th class="px-3 py-3 text-left">Organization</th>
+          <th class="px-3 py-3 text-left">System Name</th>
+          <th class="px-3 py-3 text-left">Task</th>
+          <th class="px-3 py-3 text-left">Scenario</th>
+          <th class="px-3 py-3 text-left">Model</th>
+          <th class="px-3 py-3 text-left">Accelerator</th>
+          <th class="px-3 py-3 text-left">Host Processor</th>
+          <th class="px-3 py-3 text-right">Throughput</th>
+          <th class="px-3 py-3 text-right">P99(ms)</th>
+          <th class="px-3 py-3 text-left">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr class="border-t hover:bg-slate-50">
+          <td class="px-3 py-3 text-slate-600 font-mono text-sm">
+            <a class="text-indigo-600 hover:text-indigo-800" href="/results/{{ r.id }}">{{ r.id }}</a>
+          </td>
+          <td class="px-3 py-3">{{ r.cards.get('system', {}).get('organization', '-') }}</td>
+          <td class="px-3 py-3">{{ r.cards.get('system', {}).get('system_name', '-') }}</td>
+          <td class="px-3 py-3">{{ r.task or '-' }}</td>
+          <td class="px-3 py-3">{{ r.scenario or '-' }}</td>
+          <td class="px-3 py-3">{{ r.model_name or '-' }}</td>
+          <td class="px-3 py-3">
+            {% set accelerators = r.cards.get('system', {}).get('hardware', {}).get('accelerators', r.cards.get('system', {}).get('gpu', [])) %}
+            {% if accelerators and accelerators|length > 0 %}
+              {% set acc = accelerators[0] %}
+              {% set vendor = acc.get('vendor', '') %}
+              {% set name = acc.get('name', 'Unknown') %}
+              {% set count = acc.get('count', 1) %}
+              {% set type = acc.get('type', 'gpu') %}
+              {{ count }}x {{ vendor.upper() if vendor else '' }} {{ name }}
+            {% else %}
+              {{ r.cards.get('system', {}).get('accelerator', '-') }}
+            {% endif %}
+          </td>
+          <td class="px-3 py-3">
+            {% set cpu_info = r.cards.get('system', {}).get('hardware', {}).get('cpu', {}) %}
+            {% set cpu_model = cpu_info.get('model', r.cards.get('system', {}).get('cpu', '')) %}
+            {% set cpu_cores = cpu_info.get('cores', r.cards.get('system', {}).get('cpu_count', '')) %}
+            {% if cpu_cores %}
+              {{ cpu_cores }}x {{ cpu_model }}
+            {% else %}
+              {{ cpu_model or '-' }}
+            {% endif %}
+          </td>
+          <td class="px-3 py-3 text-right">{{ '%.2f' % r.throughput if r.throughput is not none else '-' }}</td>
+          <td class="px-3 py-3 text-right">{{ '%.1f' % r.latency_p99_ms if r.latency_p99_ms is not none else '-' }}</td>
+          <td class="px-3 py-3 text-slate-500">{{ r.created_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% else %}
+        <tr><td class="px-3 py-6 text-center text-slate-500" colspan="11">暂无数据</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
 
 

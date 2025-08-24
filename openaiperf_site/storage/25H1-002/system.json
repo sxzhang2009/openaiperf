@@ -1,0 +1,1 @@
+{"organization":"Google DeepMind","system_name":"TPU-v5-256","hardware":{"cpu":{"model":"AMD EPYC 9B14","cores":128},"accelerators":[{"type":"tpu","vendor":"google","name":"TPU-v5","count":256,"memory_gb":8192,"interconnect":"ici"}]},"software":{"driver":"tpu_driver"}}

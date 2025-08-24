@@ -1,0 +1,1 @@
+{"name":"phi-3-mini","source":"hf://...","dtype":"fp8","quant":"awq","weights_sha256":"25H1-004","license":"mit"}

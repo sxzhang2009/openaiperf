@@ -1,0 +1,1 @@
+{"name":"llama2-70b","source":"hf://...","dtype":"fp8","quant":"awq","weights_sha256":"25H1-005","license":"mit"}

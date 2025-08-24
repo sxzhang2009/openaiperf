@@ -1,0 +1,1 @@
+{"organization":"NVIDIA Research","system_name":"DGX-A100-4x","hardware":{"cpu":{"model":"Intel Xeon 8462Y+","cores":48},"accelerators":[{"type":"gpu","vendor":"nvidia","name":"A100","count":4,"memory_gb":80,"interconnect":"nvlink"}]},"software":{"driver":"550.54"}}

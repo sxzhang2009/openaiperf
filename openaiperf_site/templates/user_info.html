@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}{{ target_user.username }} · User Info · OpenAIPerf{% endblock %}
+
+{% block content %}
+<section class="py-12 bg-slate-50/50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="mb-6">
+      <a href="/admin" class="text-indigo-600 hover:text-indigo-800">&larr; Back to Admin Dashboard</a>
+    </div>
+    
+    <div class="md:grid md:grid-cols-3 md:gap-8">
+
+      <!-- User Profile Card -->
+      <div class="md:col-span-1 mb-8 md:mb-0">
+        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+          <h2 class="text-2xl font-bold mb-4">User Information</h2>
+          <div class="space-y-3 text-slate-600">
+            <p><strong>Username:</strong><br>{{ target_user.username }}</p>
+            <p><strong>Email:</strong><br>{{ target_user.email }}</p>
+            <p><strong>Organization:</strong><br>{{ target_user.organization or 'Not provided' }}</p>
+            <p><strong>Role:</strong><br><span class="capitalize px-2 py-1 text-xs font-medium rounded-full 
+              {% if target_user.role == 'admin' %} bg-red-100 text-red-800 
+              {% elif target_user.role == 'auditor' %} bg-yellow-100 text-yellow-800 
+              {% else %} bg-green-100 text-green-800 {% endif %}">
+              {{ target_user.role }}
+            </span></p>
+          </div>
+          
+          <div class="mt-6 grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-indigo-600">{{ submission_count }}</div>
+              <div class="text-sm text-slate-500">Total Submissions</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-emerald-600">{{ approved_count }}</div>
+              <div class="text-sm text-slate-500">Approved</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submissions List -->
+      <div class="md:col-span-2">
+        <div class="bg-white rounded-2xl border shadow-sm">
+          <div class="p-6 border-b">
+            <h3 class="text-xl font-semibold">Submissions</h3>
+          </div>
+          {% if submissions %}
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left font-medium text-slate-700">ID</th>
+                    <th class="px-6 py-3 text-left font-medium text-slate-700">Model</th>
+                    <th class="px-6 py-3 text-left font-medium text-slate-700">Date</th>
+                    <th class="px-6 py-3 text-left font-medium text-slate-700">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                  {% for sub in submissions %}
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                      <a href="/results/{{ sub.id }}">{{ sub.id }}</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ sub.model_name or '-' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ sub.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      {% if sub.approved %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Approved
+                        </span>
+                      {% else %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                          Pending
+                        </span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="p-6 text-center text-slate-500">
+              No submissions found.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

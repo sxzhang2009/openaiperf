@@ -1,0 +1,1 @@
+{"name":"gemma-7b","source":"hf://...","dtype":"fp8","quant":"awq","weights_sha256":"25H1-002","license":"mit"}

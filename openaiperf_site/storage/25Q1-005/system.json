@@ -1,0 +1,1 @@
+{"organization":"Meta AI","system_name":"RSC-A100-16x","hardware":{"cpu":{"model":"Intel Xeon Platinum 8380","cores":80},"accelerators":[{"type":"gpu","vendor":"nvidia","name":"A100","count":16,"memory_gb":80,"interconnect":"nvlink"}]},"software":{"driver":"550.54"}}
