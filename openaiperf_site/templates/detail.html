@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>结果详情 · OpenAIPerf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50">
+  <div class="max-w-5xl mx-auto p-4">
+    <a href="/results" class="text-sm text-slate-600">← 返回</a>
+    <h1 class="mt-2 text-2xl font-semibold">{{ row.model_name or '未知模型' }}</h1>
+    <p class="text-slate-600">{{ row.task }} · {{ row.scenario }} · {{ row.backend or '后端未知' }}</p>
+
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      <div class="rounded-xl bg-white p-4 border">
+        <p class="text-slate-500 text-sm">吞吐</p>
+        <p class="text-2xl font-semibold">{{ '%.2f' % row.throughput if row.throughput is not none else '-' }}</p>
+      </div>
+      <div class="rounded-xl bg-white p-4 border">
+        <p class="text-slate-500 text-sm">P99 延迟(ms)</p>
+        <p class="text-2xl font-semibold">{{ '%.1f' % row.latency_p99_ms if row.latency_p99_ms is not none else '-' }}</p>
+      </div>
+      <!-- 能耗指标暂不展示为主卡片，可在 cards JSON 中查看 -->
+    </div>
+
+    <div class="mt-6 grid md:grid-cols-2 gap-6">
+      <div class="rounded-xl bg-white p-4 border">
+        <h2 class="font-semibold">四卡摘要</h2>
+        <pre class="mt-2 text-xs overflow-x-auto">{{ row.cards | tojson(indent=2) }}</pre>
+      </div>
+      <div class="rounded-xl bg-white p-4 border">
+        <h2 class="font-semibold">备注</h2>
+        <p class="mt-2 text-sm text-slate-700 whitespace-pre-wrap">{{ row.notes or '—' }}</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+

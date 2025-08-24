@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>提交评测 · OpenAIPerf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50">
+  <div class="max-w-3xl mx-auto p-4">
+    <h1 class="text-2xl font-semibold">提交“四卡一日志”</h1>
+    <p class="mt-2 text-slate-600">至少上传 `system.json`、`stack.json`、`model.json`、`run.json`，可选 `energy_summary.json` 与 `events.jsonl`。</p>
+
+    <form class="mt-6 space-y-4 bg-white p-6 rounded-xl border" action="/submit" method="post" enctype="multipart/form-data">
+      <div>
+        <label class="block text-sm font-medium">system.json</label>
+        <input type="file" name="system" accept="application/json" class="mt-1 block w-full"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">stack.json</label>
+        <input type="file" name="stack" accept="application/json" class="mt-1 block w-full"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">model.json</label>
+        <input type="file" name="model" accept="application/json" class="mt-1 block w-full"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">run.json</label>
+        <input type="file" name="run" accept="application/json" class="mt-1 block w-full"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">energy_summary.json (可选)</label>
+        <input type="file" name="energy" accept="application/json" class="mt-1 block w-full"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">events.jsonl (可选)</label>
+        <input type="file" name="events" accept="text/plain,.jsonl" class="mt-1 block w-full"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium">备注 (可选)</label>
+        <textarea name="notes" rows="3" class="mt-1 w-full rounded-lg border p-2" placeholder="例如：冷/热启动、功率上限、动态批窗口等"></textarea>
+      </div>
+      <div class="pt-2">
+        <button class="px-5 py-2 rounded-xl bg-indigo-600 text-white">提交</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
+
+
