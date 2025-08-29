@@ -1,2 +1,0 @@
-[console_scripts]
-ob = ob_tools.cli:main
